@@ -19,6 +19,10 @@ function file_get_contents_parser_array(string $url, string $preg): array
   preg_match($preg, $content, $match);
 
   $data = !empty($match[1]) ? str_replace(["\r\n", "\r", "\n"], "", $match[1]) : '';
+  $data = str_replace(['\"'], '"', $data);
+  $data = str_replace(['\n"'], '', $data);
+  $data = str_replace(['"[{'], '[{', $data);
+
   $data = json_decode($data, true);
 
   return !empty($data) && is_array($data) ? $data : [];

@@ -30,19 +30,46 @@ require_once ('helpers.php');
 
 if (isset($_GET['l'])) {
   $url = $_GET['l'];
-  $data = file_get_contents_parser_array($url, '#<script>window.__remixContext = (.+?);</script>#is');
+  $parse = $parse_tmp = file_get_contents_parser_array($url, '#<script>window.__remixContext.streamController.enqueue\((.+?)\);</script>#is');
 
-  $data = $data['state'] ?? $data;
+  /*$data = $data['state'] ?? $data;
   $data = $data['loaderData'] ?? $data;
   $data = $data['routes/$slug+/_index/route'] ?? $data;
   $data = $data['data'] ?? $data;
   $data = $data['tracks'] ?? $data;
-  $data = $data['nodes'] ?? $data;
+  $data = $data['nodes'] ?? $data;*/
+
+  $data = [];
+  if (!empty($parse)) {
+    foreach ($parse as $item) {
+      if (!is_array($item) && str_contains($item, '.mp3')) {
+        $path = explode('/', $item);
+        $track_id = $path[count($path) - 2];
+        $track_title = false;
+
+        reset($parse_tmp);
+        foreach ($parse_tmp as $key => $tmp) {
+          if (empty($track_title) && (int)$tmp === (int)$track_id) {
+            //echo (int)$tmp . ' ' . (int)$track_id . ' ' . $key . '<br>';
+            $track_title = $parse_tmp[$key + 1];
+            break;
+          }
+        }
+
+        $data[$track_id] = [
+            'id' => $track_id,
+            'url' => $item,
+            'title' => $track_title ?? '???',
+        ];
+      }
+    }
+  }
 
   if (!empty($data)) {
+    $i = 0;
     echo '<ul>';
     foreach ($data as $key => $file) {
-      echo "<li><a href='{$file['file']['url']}'>" . number_track($key + 1) . ". {$file['title']}</a></li>";
+      echo "<li><a href='{$file['url']}'>" . number_track(++$i) . ". {$file['title']}</a></li>";
     }
     echo '</ul>';
   }
