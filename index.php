@@ -41,6 +41,7 @@ if (isset($_GET['l'])) {
 
   $data = [];
   if (!empty($parse)) {
+    //print_array($parse);
     foreach ($parse as $item) {
       if (!is_array($item) && str_contains($item, '.mp3')) {
         $path = explode('/', $item);
@@ -63,13 +64,14 @@ if (isset($_GET['l'])) {
         ];
       }
     }
+    //print_array($data);
   }
 
   if (!empty($data)) {
     $i = 0;
     echo '<ul>';
     foreach ($data as $key => $file) {
-      echo "<li><a href='{$file['url']}'>" . number_track(++$i) . ". {$file['title']}</a></li>";
+      echo "<li><a href='{$file['url']}'>" . number_track(++$i) . ". " . (is_string($file['title']) ? $file['title'] : 'undefined') . "</a></li>";
     }
     echo '</ul>';
   }
