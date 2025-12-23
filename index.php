@@ -26,6 +26,7 @@
 
 <?php
 
+// Проверка
 require_once ('helpers.php');
 
 if (isset($_GET['l'])) {
